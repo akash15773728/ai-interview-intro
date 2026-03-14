@@ -1,11 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from rubric import RUBRIC
 from sentence_transformers import SentenceTransformer, util
 import spacy
 import re
+import os
 
-app = Flask(__name__)
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+
+app = Flask(__name__, static_folder=os.path.abspath(FRONTEND_DIR), static_url_path="")
 CORS(app)
 
 # Load models
@@ -23,7 +26,7 @@ semantic_params = {
 
 @app.route("/")
 def home():
-    return "AI Introduction Grader Backend Running"
+    return send_from_directory(app.static_folder, "index.html")
 
 
 # ---------------- NAME DETECTION ----------------
