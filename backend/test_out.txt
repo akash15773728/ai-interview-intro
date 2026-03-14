@@ -1,0 +1,18 @@
+--- my name is ---
+Name: True
+Education: False
+Skills: False
+Semantic talk about your career goals: 0.15974079072475433
+
+--- my name is akash kumar ---
+Name: True
+Education: False
+Skills: False
+Semantic talk about your career goals: 0.15306878089904785
+
+--- my name is akash. i study btech. i love machine learning. i want to become a data scientist. ---
+Name: True
+Education: True
+Skills: True
+Semantic talk about your career goals: 0.23796924948692322
+
