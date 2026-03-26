@@ -13,7 +13,7 @@ class LLMService:
         if self._model is None:
             self._model = pipeline(
                 "text2text-generation",   # ✅ CORRECT
-                model="google/flan-t5-base",  # lighter than large
+                model="google/flan-t5-large",  # large model
                 device=0
             )
 

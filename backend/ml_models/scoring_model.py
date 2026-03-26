@@ -1,23 +1,48 @@
-from backend.ml_models.embedding_model import EmbeddingModel
+def rule_based_score(self, features):
 
+    structured = features.get("structured", {})
 
-class ParameterClassifier:
+    score = 5
+    feedback = []
 
-    def __init__(self):
-        self.embedder = EmbeddingModel()
+    # ✅ NAME
+    if structured.get("name_present"):
+        score += 1
+    else:
+        feedback.append("Introduction is incomplete (name missing).")
 
-    def detect(self, transcript: str, parameters: list):
+    # ✅ DEGREE
+    if structured.get("degree_present"):
+        score += 1
+    else:
+        feedback.append("Mention your degree.")
 
-        results = {}
+    # ✅ COLLEGE
+    if structured.get("college_present"):
+        score += 1
+    else:
+        feedback.append("Mention your college.")
 
-        transcript_vec = self.embedder.encode(transcript)
+    # ✅ SKILLS
+    if structured.get("skills_present"):
+        score += 1
+    else:
+        feedback.append("Add your skills.")
 
-        for param in parameters:
+    # ✅ EXPERIENCE
+    if structured.get("experience_present"):
+        score += 1
+    else:
+        feedback.append("Add experience or projects.")
 
-            param_vec = self.embedder.encode(param)
+    # ✅ GOAL
+    if structured.get("career_goal_present"):
+        score += 1
+    else:
+        feedback.append("Mention your career goals.")
 
-            score = self.embedder.similarity(transcript_vec, param_vec)
-
-            results[param] = score > 0.35
-
-        return results
+    return {
+        "overall_score": min(score, 10),
+        "confidence": "medium",
+        "feedback": feedback
+    }
