@@ -1,28 +1,66 @@
-# -------------------- IMPORTS --------------------
-from backend.ml_models.embedding_model import EmbeddingModel
+from sentence_transformers import SentenceTransformer
+import numpy as np
+import pickle
+import os
+
+from backend.nlp.entity_extractor import EntityExtractor
 
 
-# -------------------- CLASS --------------------
 class SemanticService:
 
     def __init__(self):
-        self.model = EmbeddingModel()
 
-        self.categories = {
-            "introduction": "my name is",
-            "education": "i study university college degree",
-            "skills": "i know python ai ml",
-            "experience": "i worked internship project",
-            "career": "my goal future ambition"
-        }
+        # ✅ load embedding model
+        self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
-    # -------------------- ANALYZE --------------------
+        # ✅ load trained classifier (if exists)
+        self.model = None
+        model_path = "data/models/semantic_model.pkl"
+
+        if os.path.exists(model_path):
+            with open(model_path, "rb") as f:
+                self.model = pickle.load(f)
+
+        # ✅ structured extractor
+        self.extractor = EntityExtractor()
+
+    # ---------------- SAFE INTENT PREDICT ----------------
+    def predict_intent(self, text):
+
+        if self.model is None:
+            return {"detected": [], "confidence": 0.0}
+
+        try:
+            emb = self.embedder.encode([text])
+            pred = self.model.predict(emb)[0]
+
+            labels = [
+                "introduction",
+                "education",
+                "skills",
+                "experience",
+                "career_goals"
+            ]
+
+            detected = [labels[i] for i, val in enumerate(pred) if val == 1]
+
+            return {
+                "detected": detected,
+                "confidence": float(np.mean(pred))
+            }
+
+        except Exception as e:
+            print(f"❌ Semantic predict error: {e}")
+            return {"detected": [], "confidence": 0.0}
+
+    # ---------------- MAIN ANALYZE ----------------
     def analyze(self, text: str):
 
-        results = {}
+        intent = self.predict_intent(text)
 
-        for key, example in self.categories.items():
-            score = self.model.similarity(text, example)
-            results[key] = score > 0.4
+        structured = self.extractor.extract(text)
 
-        return results
+        return {
+            "intent": intent,
+            "structured": structured
+        }

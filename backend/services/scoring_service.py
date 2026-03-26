@@ -1,49 +1,58 @@
-# -------------------- CLASS --------------------
+# backend/services/scoring_service.py
+
+import logging
+from backend.ml_models.scoring_model import MLScoringModel
+
+logger = logging.getLogger(__name__)
+
+
 class ScoringService:
 
-    # -------------------- EVALUATE --------------------
-    def evaluate(self, raw_text, semantic, audio):
+    def __init__(self):
+        self.model = MLScoringModel()
+        self.model.load()
 
-        score = {}
+    def evaluate(self, text, semantic, audio_features, fillers):
+        """
+        Safe scoring
+        """
 
-        # ---------- CLARITY ----------
-        word_count = len(raw_text.split())
-        score["clarity"] = min(word_count / 15, 10)
+        try:
+            features = self.build_features(
+                text,
+                semantic,
+                audio_features,
+                fillers
+            )
 
-        # ---------- CONTENT ----------
-        score["content"] = sum(semantic.values()) * 2
+            result = self.model.predict(features)
 
-        # ---------- CONFIDENCE ----------
-        score["confidence"] = max(10 - audio.get("pause_ratio", 2), 0)
+            # If model returns dict → already final
+            if isinstance(result, dict):
+                return result
 
-        # ---------- GRAMMAR ----------
-        grammar_errors = self._estimate_grammar_errors(raw_text)
-        score["grammar"] = max(10 - grammar_errors, 0)
+            # If model returns raw score
+            return {
+                "overall_score": float(result),
+                "confidence": "medium"
+            }
 
-        # ---------- OVERALL ----------
-        score["overall"] = round(
-            (score["clarity"] + score["content"] + score["confidence"] + score["grammar"]) / 4,
-            2
-        )
+        except Exception as e:
+            logger.error(f"❌ Scoring failed: {e}")
 
-        return score
+            return {
+                "overall_score": 6,
+                "confidence": "low",
+                "note": "Fallback scoring used"
+            }
 
+    # ---------------- FEATURE BUILDER ----------------
+    def build_features(self, text, semantic, audio_features, fillers):
 
-    # -------------------- GRAMMAR HEURISTIC --------------------
-    def _estimate_grammar_errors(self, text):
-
-        errors = 0
-
-        # all lowercase → bad grammar
-        if text.islower():
-            errors += 2
-
-        # improper "i"
-        if " i " in text:
-            errors += 1
-
-        # very short answer
-        if len(text.split()) < 5:
-            errors += 2
-
-        return errors
+        return {
+            "text_length": len(text.split()),
+            "confidence": semantic.get("confidence", 0),
+            "speech_rate": audio_features.get("speech_rate", 0),
+            "pitch": audio_features.get("pitch", 0),
+            "filler_count": len(fillers)
+        }

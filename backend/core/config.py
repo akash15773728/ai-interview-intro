@@ -1,11 +1,12 @@
 from pathlib import Path
+import os
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+MODEL_DIR = os.path.join(BASE_DIR, "data", "models")
 
-DATA_DIR = BASE_DIR / "data"
-MODEL_DIR = BASE_DIR / "models"
+SEMANTIC_MODEL_PATH = os.path.join(MODEL_DIR, "semantic_model.pkl")
 
-DEFAULT_PARAMETER_FILE = DATA_DIR / "default_parameters.json"
+DEFAULT_PARAMETER_FILE = os.path.join(BASE_DIR, "data", "default_parameters.json")
 
 AUDIO_SAMPLE_RATE = 16000
 MAX_RECORD_SECONDS = 60

@@ -1,16 +1,24 @@
 # -------------------- IMPORTS --------------------
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer
 
 
 # -------------------- CLASS --------------------
 class EmbeddingModel:
 
     def __init__(self):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        """
+        #---- Load model once (IMPORTANT for performance)
+        """
+        self.model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
 
-    # -------------------- SIMILARITY --------------------
-    def similarity(self, text1, text2):
-        emb1 = self.model.encode(text1, convert_to_tensor=True)
-        emb2 = self.model.encode(text2, convert_to_tensor=True)
+    def encode(self, text: str):
+        """
+        #---- Convert text → embedding vector
+        """
+        return self.model.encode(text)
 
-        return util.cos_sim(emb1, emb2).item()
+    def similarity(self, vec1, vec2):
+        """
+        #---- Cosine similarity
+        """
+        return float((vec1 @ vec2) / ((vec1**2).sum()**0.5 * (vec2**2).sum()**0.5))

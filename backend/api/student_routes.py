@@ -6,33 +6,34 @@ import os
 from backend.services.speech_pipeline import SpeechPipeline
 
 
-# -------------------- ROUTER INIT --------------------
+# -------------------- INIT --------------------
 router = APIRouter()
 pipeline = SpeechPipeline()
 
 
 # -------------------- ENDPOINT --------------------
 @router.post("/evaluate")
-async def evaluate(file: UploadFile = File(...)):
+async def evaluate(audio: UploadFile = File(...)):
 
-    print("\n---------- REQUEST RECEIVED ----------")
+    print("\n========== REQUEST RECEIVED ==========")
+    print("🔥 API HIT")
 
-    file_path = f"temp_{file.filename}"
+    file_path = f"temp_{audio.filename}"
 
-    # ---------- SAVE FILE ----------
+    #---- Save uploaded audio
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        shutil.copyfileobj(audio.file, buffer)
 
     print(f"[FILE SAVED]: {file_path}")
 
-    # ---------- PROCESS ----------
+    #---- Run pipeline
     result = pipeline.process(file_path)
 
-    # ---------- CLEANUP ----------
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    #---- Cleanup temp file
+    #if os.path.exists(file_path):
+    #    os.remove(file_path)
 
-    print("---------- REQUEST COMPLETED ----------")
+    print("========== REQUEST COMPLETED ==========")
 
     return {
         "status": "success",
