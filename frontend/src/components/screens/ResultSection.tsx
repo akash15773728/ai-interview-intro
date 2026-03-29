@@ -34,10 +34,32 @@ export default function ResultSection({ data, isLoading, onRetry }: ResultSectio
     );
   }
 
-  // If no data, render blank or hidden state
+  // If no data, render placeholder state
   if (!data) {
     return (
-      <section id="results" className="hidden" />
+      <section id="results" className="min-h-[60vh] py-24 px-6 md:px-12 w-full flex items-center justify-center">
+        <div className="w-full max-w-6xl mx-auto border-2 border-dashed border-slate-200 rounded-[32px] p-12 md:p-20 flex flex-col items-center text-center gap-8 bg-white/40">
+           <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+               <path d="M12 20h.01"/><path d="M12 16h.01"/><path d="M12 12h.01"/><path d="M12 8h.01"/><path d="M12 4h.01"/>
+             </svg>
+           </div>
+           <div className="space-y-3">
+             <h2 className="text-3xl font-black text-slate-400 tracking-tight">Performance Report</h2>
+             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Record your introduction to see analysis</p>
+           </div>
+           <div className="grid grid-cols-2 gap-8 w-full max-w-md opacity-40 grayscale">
+              <div className="p-6 rounded-2xl bg-white border border-slate-100 flex flex-col gap-1 items-center">
+                <span className="text-xs font-black text-slate-400 uppercase">Score</span>
+                <span className="text-4xl font-black text-slate-300">--</span>
+              </div>
+              <div className="p-6 rounded-2xl bg-white border border-slate-100 flex flex-col gap-1 items-center">
+                <span className="text-xs font-black text-slate-400 uppercase">Confidence</span>
+                <span className="text-4xl font-black text-slate-300">--</span>
+              </div>
+           </div>
+        </div>
+      </section>
     );
   }
 
